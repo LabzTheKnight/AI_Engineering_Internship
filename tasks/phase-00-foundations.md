@@ -1,0 +1,1 @@
+i have the pthyon basic script running now i would like to make a venv and add a json file to make the bd persistant
