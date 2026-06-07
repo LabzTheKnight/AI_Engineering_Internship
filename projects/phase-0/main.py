@@ -6,6 +6,11 @@ filename = os.path.join(dirname, "tasks.json")
 
 
 
+def length():
+    with open(filename,"r") as file:
+        data = json.load(file)
+        return len(data)
+    
 def add(a):
     with open(filename,"r") as file:
         data = json.load(file)
@@ -41,6 +46,7 @@ def delete(index):
     with open(filename,"w") as file:
         json.dump(data,file,indent=4)
             
+
 def main():
     function =sys.argv[1]
     match function:
