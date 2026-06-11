@@ -6,8 +6,8 @@ filename = os.path.join(dirname, "tasks.json")
 
 
 
-def length():
-    with open(filename,"r") as file:
+def length(file_path = filename):
+    with open(file_path,"r") as file:
         data = json.load(file)
         return len(data)
     

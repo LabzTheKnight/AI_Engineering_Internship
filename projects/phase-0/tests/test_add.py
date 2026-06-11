@@ -39,3 +39,6 @@ def test_add():
 
 def test_list_not_empty(test_List):
      pass
+
+def test_len():
+     assert(length(filename)>0)
