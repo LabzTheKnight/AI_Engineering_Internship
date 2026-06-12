@@ -11,39 +11,39 @@ def length(file_path = filename):
         data = json.load(file)
         return len(data)
     
-def add(a):
-    with open(filename,"r") as file:
+def add(a, file_path = filename):
+    with open(file_path,"r") as file:
         data = json.load(file)
         index = len(data)+1
         task = {"index": index , "name" : a , "completed":False}
         data.append(task)
-    with open(filename,"w") as file:
+    with open(file_path,"w") as file:
         json.dump(data,file,indent = 4)
 
-def list():
-    with open(filename,"r") as file:
+def list(file_path = filename):
+    with open(file_path,"r") as file:
         tasks = json.load(file)
     for task in tasks:
         print(f"{task["index"]}. {task["name"]} {'true' if task["completed"] else 'false'}")
 
-def complete(index):
-    with open(filename,"r") as file:
+def complete(index , file_path = filename):
+    with open(file_path,"r") as file:
         data = json.load(file)
         task = data[int(index)-1] 
         task["completed"] = True
         data[int(index)-1] = task
-    with open(filename,"w") as file:
+    with open(file_path,"w") as file:
         json.dump(data,file,indent=4)
 
-def delete(index):
-    with open(filename,"r") as file:
+def delete(index, file_path = filename):
+    with open(file_path,"r") as file:
         data = json.load(file)
         data.pop(int(index)-1) 
         i = 1
         for task in data:
             task["index"]= i
             i+=1
-    with open(filename,"w") as file:
+    with open(file_path,"w") as file:
         json.dump(data,file,indent=4)
             
 

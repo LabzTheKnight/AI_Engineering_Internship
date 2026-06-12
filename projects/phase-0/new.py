@@ -2,11 +2,16 @@ import os
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, "tasks.json")
 originalfile = "tests/tes"
+import json
+import sys
+sys.path.insert(0,"../phase-0")
+from  main import add, length ,delete
 
 
-
-def test_List():
-    with open(originalfile,"r") as file:
-        data= json.load(file)
-    with open(filename,"w") as file:
+def emptylist():
+     data = []
+     with open(filename,"w") as file:
         json.dump(data,file,indent=4)
+
+emptylist()
+add("afolabi",filename)
