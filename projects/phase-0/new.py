@@ -5,7 +5,7 @@ originalfile = "tests/tes"
 import json
 import sys
 sys.path.insert(0,"../phase-0")
-from  main import add, length ,delete
+from  main import add, length ,delete , isno
 
 
 def emptylist():
@@ -13,5 +13,5 @@ def emptylist():
      with open(filename,"w") as file:
         json.dump(data,file,indent=4)
 
-emptylist()
-add("afolabi",filename)
+
+delete("1")
