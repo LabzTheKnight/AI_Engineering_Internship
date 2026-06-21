@@ -39,7 +39,7 @@ def complete(index , file_path = filename):
     try:
         with open(file_path,"r") as file:
             data = json.load(file)
-            if length() >= int(index)>0:
+            if length(file_path) >= int(index)>0:
                 task = data[int(index)-1]
                 if task["completed"]:
                     raise ValueError("task is already completed try another task") 
@@ -57,7 +57,7 @@ def delete(index, file_path = filename):
     try:
         with open(file_path,"r") as file:
             data = json.load(file)
-            if length() >= int(index)>0:
+            if length(file_path) >= int(index)>0:
                 data.pop(int(index)-1)
             else:
                 raise IndexError("task does not exist in list") 
@@ -82,6 +82,7 @@ def main():
     match function:
         case "list":
             list()
+            return
 
     if sys.argv[2]:
         opperand = sys.argv[2]
