@@ -1,50 +1,57 @@
-from fastapi import FastAPI
+import fastapi
+import pydantic
+import sqlalchemy
+from fastapi import FastAPI , Depends , HTTPException
 import json;
 import os;
-dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, "tasks.json")
+from pydantic import BaseModel
+from sqlalchemy import create_engine 
+from sqlalchemy.orm import sessionmaker , Session , DeclarativeBase , Mapped , mapped_column
+
+
+
+DATABASE = "sqlite:///./test.db"
+engine = create_engine(DATABASE)
+SessionLocal = sessionmaker( autocommit=False , autoflush=False , bind=engine )
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 app = FastAPI()
 
 
-def add(a,file_path = filename) :
-    with open(file_path,"r") as file:
-        data = json.load(file)
-        index = len(data) + 1 
-        task = { "index": index , "title": a , "completed": False }
-        data.append(task)
-    with open(file_path, "w") as file :
-        json.dump( data , file , indent=4)
+class Task(Base):
+    __tablename__ = "tasks"
+    index: Mapped[int] = mapped_column(primary_key= True , index = True)
+    title: Mapped[str] = mapped_column(index = True)
+    completed: Mapped[bool] = mapped_column( unique=False , default=False)
 
-def list(file_path = filename):
-    with open( file_path, "r" ) as file :
-        data = json.load(file)
-        return data
+class TaskCreate(BaseModel):
+    title: str
 
-def list_id(id: int ,file_path: str = filename):
-    return  list(file_path)[id - 1]
-    
+class TaskResponse(BaseModel):   
+    index: int
+    title: str
+    completed: bool
 
-def complete(index , file_path = filename):
-    with open(file_path, "r") as file:
-        data = json.load(file)
-        task = data[index - 1]
-        task["completed"] = True
-        data[index - 1] = task
-    with open(file_path , "w") as file:
-        json.dump(data, file , indent=4)
+class DelTaskResponse(BaseModel):
+    title: str
+    index: int
 
-def delete(index , file_path = filename):
-    with open(file_path , "r") as file:
-        index = index - 1
-        data = json.load(file)
-        data.pop(index)
-        i = 1
-        for task in data:
-            task["index"] = i
-            i+=1
-    with open(file_path , "w") as file:
-        json.dump(data, file , indent= 4)
+Base.metadata.create_all( bind=engine )
+
 
 
 @app.get("/")
@@ -52,23 +59,44 @@ def read_root():
     return {"Hello World"}
 
 
-@app.get("/items")
-def read_items():
-    return list()
+@app.get("/items" , response_model = list[TaskResponse] )
+async def read_items( db: Session = Depends(get_db)):
+    tasks: list = db.query(Task).all()
+    return tasks
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return list_id(item_id)
+@app.get("/items/{item_id}" , response_model = TaskResponse )
+async def read_item(item_id: int, db: Session = Depends(get_db)):
+    task: Task = db.query(Task).filter(Task.index == item_id).first()
+    if task is None:
+        raise HTTPException(status_code = 404 , detail= " item not found ")
+    return task
 
-@app.post("/items/new")
-def save_item(item_name: str):
-    add(item_name)
+@app.post("/items/", response_model =TaskResponse )
+async def create_task(task: TaskCreate , db: Session = Depends(get_db) ):
+    db_task: Task = Task(**task.model_dump())
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
 
-@app.put("/items/{item_id}")
-def update_item(item_id: int):
-    complete(item_id)
+@app.put("/items/{item_id}" , response_model = TaskResponse )
+async def update_item(item_id: int , db: Session = Depends(get_db)):
+    db_task = db.query(Task).filter(Task.index == item_id).first()
+    db_task.completed = True
+    db.commit()
+    return db_task 
     
     
-@app.delete("/items/{item_id}")
-def delete_item(item_id: int):
-    delete(item_id)
+@app.delete("/items/{item_id}" , response_model = DelTaskResponse )
+async def delete_item(item_id: int , db: Session = Depends(get_db)):
+    db_task = db.query(Task).filter(Task.index == item_id).first()
+    if db_task:
+        db.delete(db_task)
+        db.commit()
+        return {"title": "successfully deleted task:" , "index": item_id}
+    raise HTTPException(status_code = 404 , detail = "item not found") 
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app , host="127.0.0.1" , port = 8000)
