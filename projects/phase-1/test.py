@@ -48,7 +48,7 @@ def test_get_root():
     assert response.json() == ["Hello World"]
 
 
-def test_create_task(create_destoy):
+def test_create_task(create_destroy):
     response = client.post(
         "/items/", json = { "title": "This is a test item"}
     )
@@ -57,4 +57,37 @@ def test_create_task(create_destoy):
     assert data["title"] == "This is a test item"
     
     
+def test_update_task(create_destroy):
+    item_id = 1
+    client.post(
+        "/items/", json = {"title":"This is a test item"}
+        )
+    
+    response = client.put(
+        f"/items/{item_id}"
+    )
+    data = response.json()
+    assert data == { "index":1 , "title":"This is a test item" , "completed": True }
 
+def test_read_task(create_destroy):
+    item_id = 1
+    client.post(
+        "/items/" , json = { "title": "This is a test different test item" }
+    )
+    response = client.get(
+        f"/items/{item_id}"
+    )
+    data = response.json()
+    assert data["title"] == "This is a test different test item"
+
+def test_delete_task(create_destroy):
+    item_id = 1
+    client.post(
+        "/items/", json = {"title":"This is a test item"}
+        )
+    response = client.delete(
+        f"/items/{item_id}"
+    )
+    data = response.json()
+    assert data["title"] == "successfully deleted task:"
+    assert data["index"] == item_id
