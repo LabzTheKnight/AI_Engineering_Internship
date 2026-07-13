@@ -40,3 +40,17 @@ Do not start with Postgres. Start with SQLite so you understand the backend shap
 Your first Phase 1 learning question should be:
 
 What is the difference between a CLI command and an HTTP request?
+
+**TECHINCAL DEBT**
+
+    main.py is doing too much. Later, split into database.py, models.py, schemas.py, and routes.py.
+    read_root() returns a set-like value. It should become a normal JSON object.
+    update_item() does not handle “task not found” before setting completed.
+    Tests cover happy paths, but not enough failure paths: missing item, invalid ID, empty title, delete nonexistent item.
+    Test file should eventually be renamed from test.py to something clearer like test_tasks.py.
+    Your database URL is hardcoded. Later, use environment variables.
+    Docker uses --reload, which is good for development but not production.
+    SQLite volume is working conceptually, but you should document where the DB lives inside the container.
+    CI installs pytest separately even though test dependencies should ideally be in requirements or a dev requirements file.
+    No auth yet, even though it was in the Phase 1 roadmap. It is okay to defer, but mark it as debt.
+    No README explaining how to run Phase 1 locally, with Docker, and with tests.
