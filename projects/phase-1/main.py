@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker , Session , DeclarativeBase , Mapped , m
 
 
 
-DATABASE = "sqlite:///./test.db"
+DATABASE = "sqlite:///./data/test.db"
 engine = create_engine(DATABASE)
 SessionLocal = sessionmaker( autocommit=False , autoflush=False , bind=engine )
 
@@ -96,4 +96,6 @@ async def delete_item(item_id: int , db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app , host="127.0.0.1" , port = 8000)
+    uvicorn.run( app , host="0.0.0.0" , port = 8000 )   
+
+    
