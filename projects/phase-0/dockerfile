@@ -1,6 +1,6 @@
 FROM python
 
-WORKDIR ./phase-0
+WORKDIR /app
 
 
 
@@ -14,4 +14,4 @@ COPY . .
 
 ENTRYPOINT [ "python", "./main.py" ]
 
-CMD [ "list" , "add" , "complete" , "delete" ]
+CMD [ "list" ]

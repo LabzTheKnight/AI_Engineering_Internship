@@ -109,3 +109,4 @@ By the end of this internship, I should have:
 - evidence that I can build, debug, explain, and improve AI systems without relying on copied code
 
 The main goal is not just to finish projects. The main goal is to become the kind of engineer who understands what they are building.
+

@@ -2,9 +2,8 @@ import pytest
 import json
 import os
 import sys
-sys.path.insert(0,"../phase-0")
 from  main import add, length ,delete , complete
-
+sys.path.insert(0,"../phase-0")
 
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, "test_tasks.json")
