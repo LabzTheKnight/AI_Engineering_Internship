@@ -2,8 +2,6 @@ import fastapi
 import pydantic
 import sqlalchemy
 from fastapi import FastAPI , Depends , HTTPException
-import json;
-import os;
 from pydantic import BaseModel
 from sqlalchemy import create_engine 
 from sqlalchemy.orm import sessionmaker , Session , DeclarativeBase , Mapped , mapped_column
