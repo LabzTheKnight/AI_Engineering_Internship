@@ -1,0 +1,85 @@
+from typing import Literal
+
+from fastapi import FastAPI, HTTPException
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
+from pydantic import BaseModel, Field
+
+
+app = FastAPI(title="Notes Summarizer")
+
+
+class SummaryRequest(BaseModel):
+    notes: str = Field(
+        min_length=1,
+        max_length=50_000,
+        description="The notes to summarize",
+    )
+    style: Literal["brief", "detailed", "bullet_points"] = "brief"
+
+
+class SummaryResponse(BaseModel):
+    summary: str
+
+
+# This connects to the model running locally through Ollama.
+model = ChatOllama(
+    model="llama3.2:3b",
+    temperature=0,
+)
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+You summarize user notes accurately.
+
+Rules:
+- Do not invent information.
+- Preserve important names, dates, decisions, and action items.
+- Follow the requested summary style.
+- Return only the summary.
+""",
+        ),
+        (
+            "human",
+            """
+Summary style: {style}
+
+Notes:
+{notes}
+""",
+        ),
+    ]
+)
+
+summary_chain = prompt | model
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+@app.post("/summarize", response_model=SummaryResponse)
+async def summarize(request: SummaryRequest) -> SummaryResponse:
+    try:
+        result = await summary_chain.ainvoke(
+            {
+                "notes": request.notes,
+                "style": request.style,
+            }
+        )
+
+        return SummaryResponse(summary=str(result.content).strip())
+
+    except Exception as exc:
+        # In production, log the full exception internally.
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Could not contact the local Ollama model. "
+                "Make sure Ollama is running and the model is installed."
+            ),
+        ) from exc

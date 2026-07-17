@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database_setup import get_db , Note
 from models import NoteResponse , CreateNote
 from fastapi import FastAPI , Depends , HTTPException
-from LLM import ai_summarize , ai_gen_quiz
+from LLM import ai_summarize , ai_gen_quiz , summary_chain
 
 app = FastAPI()
 
@@ -38,7 +38,8 @@ async def get_note(note_id: int , db: Session = Depends(get_db)):
 async def summarize_note(note_id: int , db: Session = Depends(get_db)):
     note: Note = db.query(Note).filter(Note.id == note_id).first()
     if note:
-        note.summary = ai_summarize(note.content)
+        result = await summary_chain.ainvoke({"note": note.content , "style": "brief"})
+        note.summary = str(result.content).strip()
         db.commit()
     return note
 
