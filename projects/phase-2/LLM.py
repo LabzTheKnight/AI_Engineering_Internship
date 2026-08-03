@@ -21,8 +21,18 @@ prompt = ChatPromptTemplate.from_messages(
 
 summary_chain = prompt | model
 
+prompt2 = ChatPromptTemplate.from_messages(
+    [
+        ("system", "You generate a quiz from the note"),
+        ("human", "Quiz style: {style} Note: {note}")
+    ]
+)
+
+quiz_chain = prompt2 | model
+
 def ai_summarize(content: str) -> str:
     return "summarized"
 
-def ai_gen_quiz( content: str ) -> str:
-    return "quiz"
+async def ai_gen_quiz( content: str ) -> str:
+    result = await quiz_chain({"note":content , "style": "brief"})
+    return result
