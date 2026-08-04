@@ -34,7 +34,7 @@ def engine():
 def db_session(engine: Engine):
     connection = engine.connect()
     transaction = connection.begin()
-    db = Session(autocommit = False , autoflush = False , bind = connection , join_transaction_mode="create_savepoint")
+    db = Session( autocommit = False , autoflush = False , bind = connection , join_transaction_mode="create_savepoint" )
     try:
         yield db
     finally:
@@ -52,4 +52,19 @@ def client(db_session: Session):
     with TestClient(app) as test_client:
         yield test_client
 
-    
+@pytest.fixture
+def create_test_notes(client: TestClient):
+    response1 = client.post(
+        "/notes",
+        json = {
+            "content" : "test note"
+        }
+    )   
+    client.post(
+        "/notes",
+        json = {
+            "content" : "test note 2"
+        }
+    )
+    data = response1.json()
+    return data["id"]

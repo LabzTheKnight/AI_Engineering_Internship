@@ -2,3 +2,6 @@ projects/phase-0/__pycache__
 projects/phase-0/.venv
 projects/phase-0/tests/__pycache__
 projects/phase-2/.env
+projects/phase-2/__pycache__/
+projects/phase-2/.pytest_cache
+projects/phase-2/tests/__pycache__

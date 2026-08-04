@@ -30,9 +30,10 @@ prompt2 = ChatPromptTemplate.from_messages(
 
 quiz_chain = prompt2 | model
 
-def ai_summarize(content: str) -> str:
-    return "summarized"
+async def ai_summarize(content: str) -> str:
+    result = await summary_chain.ainvoke({"note": content , "style": "brief"})
+    return result
 
 async def ai_gen_quiz( content: str ) -> str:
-    result = await quiz_chain({"note":content , "style": "brief"})
+    result = await quiz_chain.ainvoke({"note":content , "style": "brief"})
     return result
