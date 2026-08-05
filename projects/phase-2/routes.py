@@ -43,7 +43,10 @@ async def get_note(note_id: int , db: Session = Depends(get_db)):
 async def summarize_note(note_id: int , db: Session = Depends(get_db)):
     note: Note = db.query(Note).filter(Note.id == note_id).first()
     if note:
-        result = await ai_summarize( note.content )
+        try:
+            result = await ai_summarize( note.content )
+        except Exception as exc:
+            raise HTTPException(status_code=503 , detail="could not contact local model") from exc
         note.summary = str(result.content).strip()
         db.commit()
         return note
@@ -53,7 +56,10 @@ async def summarize_note(note_id: int , db: Session = Depends(get_db)):
 async def gen_quiz(note_id: int , db: Session = Depends(get_db)):
     note: Note = db.query(Note).filter(Note.id == note_id).first()
     if note:
-        result = await ai_gen_quiz(note.content)
+        try:
+            result = await ai_gen_quiz(note.content)
+        except Exception as exc:
+            raise HTTPException( status_code = 503 , detail= "could not contact local model") from exc
         note.quiz = str(result.content).strip()
         db.commit()         
         return note
