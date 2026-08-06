@@ -1,11 +1,17 @@
 import langchain
+import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
+from dotenv import load_dotenv
 
+load_dotenv()
+
+OLLAMA_HOST = os.getenv("OLLAMA_HOST")
 
 model = ChatOllama(
     model = "qwen3:4b",
-    temperature = 0
+    temperature = 0  ,
+    base_url = OLLAMA_HOST
 )
 
 prompt = ChatPromptTemplate.from_messages(
